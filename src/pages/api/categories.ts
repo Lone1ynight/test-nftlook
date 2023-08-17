@@ -4,9 +4,9 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const initialCategories: CategoryType[] = [
-  { id: 0, name: 'Other', visible: true, readonly: true },
   { id: 1, name: '123', visible: true },
-  { id: 2, name: '1233254', visible: true }
+  { id: 2, name: '1233254', visible: true },
+  { id: 0, name: 'Other', visible: true, readonly: true },
 ];
 
 //використовуєм як мокову БД
@@ -17,12 +17,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   switch (method) {
     case 'GET':
-      res.status(200).json(categories.reverse());
+      res.status(200).json(categories);
       break;
     case 'POST':
       const { name } = req.body;
       const newCategory: CategoryType = { id: Date.now(), name, visible: false };
-      categories.push(newCategory);
+      categories.unshift(newCategory);
       res.status(201).json(newCategory);
       break;
     case 'PUT':

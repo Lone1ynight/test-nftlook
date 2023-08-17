@@ -11,9 +11,9 @@ export const getCategories = async (): Promise<CategoryType[]> => {
   }
 };
 
-export const addCategory = async (name: string, visible: boolean): Promise<CategoryType | null> => {
+export const addCategory = async (name: string): Promise<CategoryType | null> => {
   try {
-    const response = await apiInstance.post<CategoryType>('/categories', { name, visible });
+    const response = await apiInstance.post<CategoryType>('/categories', { name });
     return response.data;
   } catch (error) {
     console.error('Error adding category:', error);

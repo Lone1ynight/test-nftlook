@@ -1,38 +1,41 @@
-'use client'
-
 import {
+  addCategory,
   deleteCategory,
   getCategories,
   updateCategory
 } from '@/api';
 import { Category } from '@/components/category';
+import { reorderCategories } from '@/helpers/categories';
 import { CategoryType } from '@/types';
 import {
+  Dispatch,
+  FC,
+  SetStateAction,
   useEffect,
   useState
 } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
-const reorderCategories = (list: CategoryType[], startIndex: number, endIndex: number): CategoryType[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  return result;
-};
+export interface CategoriesListProps {
+  categories: CategoryType[],
+  setCategories: Dispatch<SetStateAction<CategoryType[]>>,
+}
 
-const CategoriesList: React.FC = () => {
-  const [categories, setCategories] = useState<CategoryType[]>([]);
+const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) => {
   const [originalCategories, setOriginalCategories] = useState<CategoryType[]>([]);
   const [isDirty, setIsDirty] = useState<boolean>(false);
+
   const [newCategory, setNewCategory] = useState<boolean>(false)
+  const [newCategoryName, setNewCategoryName] = useState<string>('')
+
+  const [editCategory, setEditCategory] = useState<CategoryType>({
+    id: -1,
+    name: '',
+    visible: false,
+  })
 
   useEffect(() => {
-    async function fetchCategories() {
-      const allCategories = await getCategories();
-      setCategories(allCategories);
-      setOriginalCategories([...allCategories]);
-    }
-    fetchCategories();
+      setOriginalCategories([...categories]);
   }, []);
 
   const handleToggleVisibility = async (categoryId: number, newVisible: boolean): Promise<void> => {
@@ -63,13 +66,31 @@ const CategoriesList: React.FC = () => {
       result.source.index,
       result.destination.index
     );
-
+    console.log(reorderedCategories)
     setCategories(reorderedCategories);
     setIsDirty(true);
   };
 
-  const handleSaveChanges = async (): Promise<void> => {
-    setIsDirty(false);
+  const handleSaveChanges = async (
+    id: number | null,
+    name: string,
+    newVisible: boolean | null
+  ): Promise<void> => {
+    try {
+      if (id === null && id !== -1 && newCategoryName !== '') {
+        console.log(id)
+        //--------------------
+        //TODO: пофиксить перетягивание / otpravku na back/ delete/ edit visible/styles
+        await addCategory(newCategoryName);
+
+      } else {
+        await updateCategory(editCategory.id, editCategory.name, editCategory.visible || editCategory.visible);
+      }
+
+      setIsDirty(false);
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
   };
 
   const handleCancelChanges = (): void => {
@@ -81,11 +102,19 @@ const CategoriesList: React.FC = () => {
     setNewCategory(true)
     setIsDirty(true)
   }
+  console.log(categories)
 
   return (
     <div>
       <button onClick={handleNewCategory}>Create a Category</button>
-      {newCategory && <Category name="" onDelete={handleDeleteCategory} visible={false}/>}
+      {newCategory &&
+        <Category
+          name={newCategoryName}
+          onDelete={handleDeleteCategory}
+          visible={false}
+          newCategory={newCategory}
+          setNewCategoryName={setNewCategoryName}
+        />}
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="categories">
             {(provided) => (
@@ -99,6 +128,11 @@ const CategoriesList: React.FC = () => {
                         visible={category.visible}
                         onDelete={handleDeleteCategory}
                         provided={provided}
+                        newCategory={newCategory}
+                        editCategory={editCategory}
+                        setEditCategory={setEditCategory}
+                        setCategories={setCategories}
+                        setIsDirty={setIsDirty}
                       />
                     )}
                   </Draggable>
@@ -110,7 +144,7 @@ const CategoriesList: React.FC = () => {
         </DragDropContext>
       {isDirty && (
         <>
-          <button onClick={handleSaveChanges}>Сохранить изменения</button>
+          <button onClick={() => handleSaveChanges(editCategory?.id || null, newCategoryName || `${editCategory?.name}`, editCategory?.visible || false)}>Сохранить изменения</button>
           <button onClick={handleCancelChanges}>Отмена</button>
         </>
       )}
