@@ -1,4 +1,4 @@
-import { CategoryType } from '@/types/index.js';
+import { CategoryType } from '@/types';
 import React, {
   Dispatch,
   SetStateAction

@@ -34,7 +34,7 @@ export default function Home() {
     <div className="app">
       <Header onSearch={onSearch}/>
       <main className="main">
-        <CategoriesList categories={categories} setCategories={setCategories} originalCategories={originalCategories} setOriginalCategories={setOriginalCategories}/>
+        <CategoriesList categories={categories} setCategories={setCategories} originalCategories={originalCategories}/>
       </main>
     </div>
   )

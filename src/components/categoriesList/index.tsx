@@ -1,12 +1,12 @@
 import {
   addCategory,
   deleteCategory,
-  getCategories,
   updateCategory
 } from '@/api';
 import { Category } from '@/components/category';
 import { reorderCategories } from '@/helpers/categories';
 import { CategoryType } from '@/types';
+import Image from 'next/image';
 import {
   Dispatch,
   FC,
@@ -14,22 +14,19 @@ import {
   useState
 } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
 import './styles.scss';
 
 export interface CategoriesListProps {
   categories: CategoryType[],
   setCategories: Dispatch<SetStateAction<CategoryType[]>>,
   originalCategories: CategoryType[]
-  setOriginalCategories: Dispatch<SetStateAction<CategoryType[]>>,
 }
 
 const CategoriesList: FC<CategoriesListProps> = (
   {
       categories,
       setCategories,
-      originalCategories,
-      setOriginalCategories
+      originalCategories
   }) => {
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [newCategory, setNewCategory] = useState<boolean>(false)
@@ -138,6 +135,7 @@ const CategoriesList: FC<CategoriesListProps> = (
             handleSaveChanges(editCategoryId || null)}
             className="saveButton"
           >
+            <Image src="./check-circle.svg" alt="Check" width={20} height={20} />
             Save Changes
           </button>
           <button onClick={handleCancelChanges} className="cancelButton">Cancel</button>
