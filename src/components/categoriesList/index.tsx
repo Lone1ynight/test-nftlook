@@ -11,42 +11,30 @@ import {
   Dispatch,
   FC,
   SetStateAction,
-  useEffect,
   useState
 } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { v4 as uuidv4 } from 'uuid';
+import './styles.scss';
 
 export interface CategoriesListProps {
   categories: CategoryType[],
   setCategories: Dispatch<SetStateAction<CategoryType[]>>,
+  originalCategories: CategoryType[]
+  setOriginalCategories: Dispatch<SetStateAction<CategoryType[]>>,
 }
 
-const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) => {
-  const [originalCategories, setOriginalCategories] = useState<CategoryType[]>([]);
+const CategoriesList: FC<CategoriesListProps> = (
+  {
+      categories,
+      setCategories,
+      originalCategories,
+      setOriginalCategories
+  }) => {
   const [isDirty, setIsDirty] = useState<boolean>(false);
-
   const [newCategory, setNewCategory] = useState<boolean>(false)
   const [newCategoryName, setNewCategoryName] = useState<string>('')
-
-  const [editCategory, setEditCategory] = useState<CategoryType>({
-    id: -1,
-    name: '',
-    visible: false,
-  })
-
-  useEffect(() => {
-      setOriginalCategories([...categories]);
-  }, []);
-
-  const handleToggleVisibility = async (categoryId: number, newVisible: boolean): Promise<void> => {
-    const updatedCategory = await updateCategory(categoryId, null, newVisible);
-    if (updatedCategory) {
-      setCategories(prevCategories =>
-        prevCategories.map(cat => (cat.id === categoryId ? updatedCategory : cat))
-      );
-      setIsDirty(true);
-    }
-  };
+  const [editCategoryId, setEditCategoryId] = useState<number>()
 
   const handleDeleteCategory = async (categoryId: number): Promise<void> => {
     const deletedId = await deleteCategory(categoryId);
@@ -66,27 +54,25 @@ const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) =>
       result.source.index,
       result.destination.index
     );
-    console.log(reorderedCategories)
+
     setCategories(reorderedCategories);
     setIsDirty(true);
   };
 
   const handleSaveChanges = async (
-    id: number | null,
-    name: string,
-    newVisible: boolean | null
+    id: number | null
   ): Promise<void> => {
     try {
-      if (id === null && id !== -1 && newCategoryName !== '') {
-        console.log(id)
-        //--------------------
-        //TODO: пофиксить перетягивание / otpravku na back/ delete/ edit visible/styles
-        await addCategory(newCategoryName);
-
+      if (id === null && newCategoryName !== '') {
+        const newCategory = await addCategory(newCategoryName);
+        newCategory && setCategories(prevState => [...prevState, newCategory])
       } else {
-        await updateCategory(editCategory.id, editCategory.name, editCategory.visible || editCategory.visible);
+        const editCategory = categories.find(category => category.id === id)
+        editCategory && await updateCategory(editCategory.id, editCategory.name, editCategory.visible);
       }
 
+      setNewCategoryName('')
+      setNewCategory(false)
       setIsDirty(false);
     } catch (error) {
       console.error("Error saving changes:", error);
@@ -94,15 +80,19 @@ const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) =>
   };
 
   const handleCancelChanges = (): void => {
+    setNewCategory(false);
+    setNewCategoryName('')
     setCategories([...originalCategories]);
     setIsDirty(false);
   };
 
   const handleNewCategory = () => {
-    setNewCategory(true)
+     setNewCategory(true)
+    // setCategories(prevState => [...prevState, {name: '', visible: false}])
+
+
     setIsDirty(true)
   }
-  console.log(categories)
 
   return (
     <div>
@@ -112,8 +102,9 @@ const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) =>
           name={newCategoryName}
           onDelete={handleDeleteCategory}
           visible={false}
-          newCategory={newCategory}
           setNewCategoryName={setNewCategoryName}
+          categories={categories}
+          id={null}
         />}
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="categories">
@@ -128,11 +119,10 @@ const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) =>
                         visible={category.visible}
                         onDelete={handleDeleteCategory}
                         provided={provided}
-                        newCategory={newCategory}
-                        editCategory={editCategory}
-                        setEditCategory={setEditCategory}
                         setCategories={setCategories}
                         setIsDirty={setIsDirty}
+                        setEditCategoryId={setEditCategoryId}
+                        categories={categories}
                       />
                     )}
                   </Draggable>
@@ -143,10 +133,15 @@ const CategoriesList: FC<CategoriesListProps> = ({categories, setCategories}) =>
           </Droppable>
         </DragDropContext>
       {isDirty && (
-        <>
-          <button onClick={() => handleSaveChanges(editCategory?.id || null, newCategoryName || `${editCategory?.name}`, editCategory?.visible || false)}>Сохранить изменения</button>
-          <button onClick={handleCancelChanges}>Отмена</button>
-        </>
+        <div className="buttons">
+          <button onClick={() =>
+            handleSaveChanges(editCategoryId || null)}
+            className="saveButton"
+          >
+            Save Changes
+          </button>
+          <button onClick={handleCancelChanges} className="cancelButton">Cancel</button>
+        </div>
       )}
     </div>
   );

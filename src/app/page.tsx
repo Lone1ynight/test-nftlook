@@ -8,7 +8,7 @@ import {
   useEffect,
   useState
 } from 'react';
-import styles from './page.module.css'
+import './page.css';
 
 export default function Home() {
   const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -31,10 +31,10 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className="app">
       <Header onSearch={onSearch}/>
-      <main className={styles.main}>
-        <CategoriesList categories={categories} setCategories={setCategories}/>
+      <main className="main">
+        <CategoriesList categories={categories} setCategories={setCategories} originalCategories={originalCategories} setOriginalCategories={setOriginalCategories}/>
       </main>
     </div>
   )

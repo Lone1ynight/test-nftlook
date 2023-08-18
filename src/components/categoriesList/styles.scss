@@ -1,0 +1,44 @@
+
+
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  background: #2E2F3C;
+  height: 104px;
+  position: fixed;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+
+  button {
+    width: 40%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #FFF;
+    text-align: center;
+    font-feature-settings: 'clig' off, 'liga' off;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 18px;
+    text-transform: capitalize;
+    border-radius: 4px;
+    box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.08);
+  }
+
+  .saveButton {
+    border: 0;
+    background-color: #45CB54;
+  }
+
+  .cancelButton {
+    background: #2E2F3C;
+    border: 3px solid #424454;
+  }
+}

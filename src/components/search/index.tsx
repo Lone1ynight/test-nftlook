@@ -1,8 +1,10 @@
 import { HeaderProps } from '@/components/header/index.js';
+import Image from 'next/image';
 import {
   FC,
   useState
 } from 'react';
+import './search.scss';
 
 export const Search: FC<HeaderProps> = ({onSearch}) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,13 +18,13 @@ export const Search: FC<HeaderProps> = ({onSearch}) => {
     onSearch(searchQuery);
   };
 
-  return <div>
+  return <div className="search">
     <input
       type="text"
-      placeholder="Search categories..."
+      placeholder="Search"
       value={searchQuery}
       onChange={(e) => handleInputChange(e)}
     />
-    <button onClick={handleSearch}>Search</button>
+    <Image src="./search.svg" alt="Search Icon" width={20} height={20}/>
   </div>
 }

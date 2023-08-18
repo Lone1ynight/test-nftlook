@@ -1,3 +1,7 @@
+.app {
+  background: #1E1E27;
+}
+
 .main {
   display: flex;
   flex-direction: column;

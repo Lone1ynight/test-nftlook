@@ -1,0 +1,25 @@
+.header {
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  border-bottom: 1px solid #313442;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 18px 0;
+}
+
+.logoBlock {
+  display: flex;
+  gap: 10px;
+  color: #FFF;
+  text-align: center;
+  font-feature-settings: 'clig' off, 'liga' off;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 28px; /* 87.5% */
+  //img {
+  //  width: 10%;
+  //}
+}
